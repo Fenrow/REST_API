@@ -16,7 +16,7 @@ class Item(Resource):
     """Klasa odpowiedzialna za pojedyńczy przedmiot"""
 
     parser = reqparse.RequestParser()
-    parser.add_argument('name')
+    parser.add_argument('name', type=str)
     parser.add_argument('price',
         type=float,
         required=True,
@@ -54,11 +54,10 @@ class Item(Resource):
 
         request_data = Item.parser.parse_args()
 
+        item = next(filter(lambda x: x['ID'] == item_id, items), None)
+
         while True:
-
-            item = next(filter(lambda x: x['ID'] == item_id, items), None)
-
-            if item['name'] != None:
+            if request_data['name'] != None:
                 if item is None:
                     item = {
                         'ID': item_id,
@@ -71,10 +70,10 @@ class Item(Resource):
                 return item, 201
                 break
             else:
-                if next(filter(lambda x: x['ID'] == item_id, items), None):
+                if item:
                     request_data['name'] = item['name']
                 else:
-                    return {'message': "An item with ID '{}' does not exist, if you want create an item the name argument need to be fill"}
+                    return {'message': "An item with ID '{}' does not exist, if you want create an item the name argument need to be fill".format(item_id)}
 
 class ItemList(Resource):
     """Klasa odpowiadająca za listę przedmiotów"""
